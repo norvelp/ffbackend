@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://norvelpatel239:LoOEZWCOr1sRTyrk@cluster0.nvjmv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0://https://ffbackend-sawn.onrender.com/partydb')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://norvelpatel239:<password>@cluster0.nvjmv.mongodb.net/partydb?retryWrites=true&w=majority')
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
