@@ -311,6 +311,16 @@ app.post('/api/vendors', async (req, res) => {
   }
 });
 
+app.get('/api/party-vendor-entries/:partyId', async (req, res) => {
+  try {
+    const { partyId } = req.params;
+    const entries = await PartyVendorEntry.find({ partyId });
+    res.status(200).json(entries);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching entries', error: error.message });
+  }
+});
+
 // API Route to get vendors for a specific party
 app.get('/api/vendors/:partyId', async (req, res) => {
   try {
