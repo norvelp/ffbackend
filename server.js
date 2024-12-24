@@ -236,7 +236,8 @@ app.post('/api/party-vendor-entries', async (req, res) => {
       date,
       name,
       quantity,
-      price
+      price,
+      status: 'pending'  // Set default status
     });
 
     const savedEntry = await newEntry.save();
