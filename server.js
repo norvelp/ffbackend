@@ -167,9 +167,42 @@ const partyVendorEntrySchema = new mongoose.Schema({
   price: {
     type: Number,
     required: true
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'paid'],
+    default: 'pending'
   }
-}, {
-  timestamps: true
+});
+
+app.patch('/api/party-vendor-entries/:entryId/status', async (req, res) => {
+  try {
+    const { entryId } = req.params;
+    const { status } = req.body;
+
+    if (!['pending', 'paid'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status value' });
+    }
+
+    const updatedEntry = await PartyVendorEntry.findByIdAndUpdate(
+      entryId,
+      { status },
+      { new: true }
+    ).populate('subPartyId', 'partyName')
+     .populate('vendorId', 'vendorName');
+
+    if (!updatedEntry) {
+      return res.status(404).json({ message: 'Entry not found' });
+    }
+
+    res.status(200).json({
+      ...updatedEntry.toObject(),
+      subPartyName: updatedEntry.subPartyId.partyName,
+      vendorName: updatedEntry.vendorId.vendorName,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating entry status', error: error.message });
+  }
 });
 
 // Add this line to create the model
