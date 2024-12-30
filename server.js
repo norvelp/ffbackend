@@ -1,4 +1,3 @@
-
 // // const express = require('express');
 // // const mongoose = require('mongoose');
 // // const cors = require('cors');
@@ -526,14 +525,6 @@
 
 
 
-
-
-
-
-
-
-
-
 // const express = require('express');
 // const mongoose = require('mongoose');
 // const cors = require('cors');
@@ -864,7 +855,7 @@
 // // API Route to add new vendor
 // app.post('/api/vendors', async (req, res) => {
 //   try {
-//     const { vendorName, farm, phoneNumber, address, partyId } = req.body;
+//     const { vendorName, farm, phoneNumber, address, gst, partyId } = req.body;
     
 //     console.log('Received vendor data:', req.body);
 
@@ -875,7 +866,7 @@
 //         farm: !!farm,
 //         phoneNumber: !!phoneNumber,
 //         address: !!address,
-//         gst: !!gst, // Add this
+//         gst: !!gst,
 //         partyId: !!partyId
 //       });
 //       return res.status(400).json({ 
@@ -885,18 +876,19 @@
 //           farm: !farm,
 //           phoneNumber: !phoneNumber,
 //           address: !address,
-//           gst: !gst, // Add this
+//           gst: !gst,
 //           partyId: !partyId
 //         }
 //       });
 //     }
 
-//     // Create new vendor with address
+//     // Create new vendor with all fields
 //     const newVendor = new Vendor({
 //       vendorName,
 //       farm,
 //       phoneNumber,
 //       address,
+//       gst,
 //       partyId,
 //     });
 
@@ -1061,6 +1053,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 30/12/24
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -1202,6 +1210,80 @@ app.get('/api/parties/:parentPartyId', async (req, res) => {
     console.error('Error fetching parties:', error);
     res.status(500).json({
       message: 'Error fetching parties',
+      error: error.message
+    });
+  }
+});
+
+
+// Update sub-party
+app.put('/api/parties/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { partyName, farm, phoneNumber, address, gst } = req.body;
+
+    // Validate required fields
+    if (!partyName || !farm || !phoneNumber || !address || !gst) {
+      return res.status(400).json({ 
+        message: 'All fields are required',
+        missingFields: {
+          partyName: !partyName,
+          farm: !farm,
+          phoneNumber: !phoneNumber,
+          address: !address,
+          gst: !gst
+        }
+      });
+    }
+
+    const updatedParty = await SubParty.findByIdAndUpdate(
+      id,
+      {
+        partyName,
+        farm,
+        phoneNumber,
+        address,
+        gst
+      },
+      { new: true }
+    );
+
+    if (!updatedParty) {
+      return res.status(404).json({ message: 'Party not found' });
+    }
+
+    res.status(200).json({
+      message: 'Party updated successfully',
+      party: updatedParty
+    });
+  } catch (error) {
+    console.error('Error updating party:', error);
+    res.status(500).json({
+      message: 'Error updating party',
+      error: error.message
+    });
+  }
+});
+
+// Delete sub-party
+app.delete('/api/parties/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const deletedParty = await SubParty.findByIdAndDelete(id);
+    
+    if (!deletedParty) {
+      return res.status(404).json({ message: 'Party not found' });
+    }
+
+    res.status(200).json({
+      message: 'Party deleted successfully',
+      party: deletedParty
+    });
+  } catch (error) {
+    console.error('Error deleting party:', error);
+    res.status(500).json({
+      message: 'Error deleting party',
       error: error.message
     });
   }
